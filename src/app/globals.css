@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 250 25% 98%;
+  --foreground: 250 10% 10%;
+  --primary: 267 100% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 267 30% 95%;
+  --secondary-foreground: 267 10% 30%;
+  --muted: 267 20% 95%;
+  --muted-foreground: 267 10% 40%;
+  --accent: 267 30% 90%;
+  --accent-foreground: 267 10% 30%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 267 20% 87%;
+  --input: 267 20% 87%;
+  --ring: 267 100% 60%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 250 20% 10%;
+  --foreground: 250 10% 98%;
+  --primary: 267 100% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 267 30% 15%;
+  --secondary-foreground: 267 10% 90%;
+  --muted: 267 20% 15%;
+  --muted-foreground: 267 10% 70%;
+  --accent: 267 30% 20%;
+  --accent-foreground: 267 10% 90%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 267 20% 25%;
+  --input: 267 20% 25%;
+  --ring: 267 100% 60%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    background: linear-gradient(135deg, hsl(267, 100%, 98%) 0%, hsl(267, 100%, 95%) 100%);
+  }
+}
+
+.bg-gradient-custom {
+  background: linear-gradient(135deg, hsl(267, 100%, 98%) 0%, hsl(267, 100%, 95%) 100%);
+}
+
+.dark .bg-gradient-custom {
+  background: linear-gradient(135deg, hsl(267, 20%, 12%) 0%, hsl(267, 20%, 15%) 100%);
+}
+
+.shadow-custom {
+  box-shadow: 0 4px 20px -4px rgba(124, 58, 237, 0.15);
+}
+
+.dark .shadow-custom {
+  box-shadow: 0 4px 20px -4px rgba(124, 58, 237, 0.25);
+}
+
+.glass-panel {
+  @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg;
+}
+
+/* Modern scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary/50;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
