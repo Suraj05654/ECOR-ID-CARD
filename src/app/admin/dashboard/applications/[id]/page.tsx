@@ -38,6 +38,8 @@ type AppPageProps = {
   searchParams?: Record<string, string | string[] | undefined>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function ApplicationDetailPage({ params }: AppPageProps) {
   const employeeData = await getApplicationById(params.id);
 
@@ -246,8 +248,4 @@ export default async function ApplicationDetailPage({ params }: AppPageProps) {
       </Card>
     </div>
   );
-}
-
-export async function generateStaticParams() {
-  return [] as Array<{ id: string }>;
 }
