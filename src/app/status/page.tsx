@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { formatDate } from '@/lib/utils';
 
 const StatusCheckSchema = z.object({
   applicationId: z.string().min(1, 'Application ID is required'),
@@ -162,7 +163,7 @@ export default function StatusPage() {
                                 )}
                               >
                                 {field.value ? (
-                                  format(parseISO(field.value), "PPP")
+                                  formatDate(field.value)
                                 ) : (
                                   <span>Pick a date</span>
                                 )}
@@ -241,7 +242,7 @@ export default function StatusPage() {
                       {statusResult.submissionDate && (
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Submitted On</span>
-                          <span className="text-sm font-medium">{statusResult.submissionDate}</span>
+                          <span className="text-sm font-medium">{formatDate(statusResult.submissionDate)}</span>
                         </div>
                       )}
                       <div className="flex justify-between items-center">

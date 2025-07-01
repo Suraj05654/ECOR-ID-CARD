@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle, FileText, Mail, Phone, User, Users, Home, CalendarDays, Briefcase, ShieldCheck, XCircle, Edit3, Info, AlertCircle, FileCheck, Building2, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import Image from 'next/image';
+import { formatDate } from '@/lib/utils';
 
 interface DetailItemProps {
   icon: React.ReactNode;
@@ -60,7 +61,7 @@ export default async function ApplicationDetailPage({ params }: AppPageProps) {
     id: employeeData.$id,
     name: employeeData.employeeName || '',
     designation: employeeData.designation || '',
-    dateOfBirth: employeeData.dateOfBirth?.toString() || '',
+    dateOfBirth: (typeof employeeData.dob === 'string' ? employeeData.dob : employeeData.dob?.toISOString()) || (typeof employeeData.dateOfBirth === 'string' ? employeeData.dateOfBirth : employeeData.dateOfBirth?.toISOString()) || '',
     station: employeeData.station || '',
     department: employeeData.department || '',
     pfNumber: employeeData.employeeNo || '',
@@ -109,7 +110,7 @@ export default async function ApplicationDetailPage({ params }: AppPageProps) {
             <div className="flex flex-col items-start md:items-end gap-2">
               {getStatusBadge(application.status)}
               <p className="text-xs text-muted-foreground">
-                Submitted: {employeeData.applicationDate ? format(new Date(employeeData.applicationDate), 'dd MMM yyyy, p') : '-'}
+                Submitted: {employeeData.applicationDate ? formatDate(typeof employeeData.applicationDate === 'string' ? employeeData.applicationDate : employeeData.applicationDate.toISOString()) : '-'}
               </p>
             </div>
           </div>
@@ -122,7 +123,7 @@ export default async function ApplicationDetailPage({ params }: AppPageProps) {
               <DetailItem icon={<User size={18} />} label="Full Name" value={application.name} />
               <DetailItem icon={<Briefcase size={18} />} label="Employee ID" value={application.pfNumber} />
               <DetailItem icon={<ShieldCheck size={18} />} label="RUID Number" value={employeeData.ruidNo || 'N/A'} />
-              <DetailItem icon={<CalendarDays size={18} />} label="Date of Birth" value={application.dateOfBirth ? format(new Date(application.dateOfBirth), 'PPP') : '-'} />
+              <DetailItem icon={<CalendarDays size={18} />} label="Date of Birth" value={application.dateOfBirth ? formatDate(application.dateOfBirth) : '-'} />
               <DetailItem icon={<ShieldCheck size={18} />} label="Applicant Type" value={<span className="capitalize">{employeeData.applicantType}</span>} />
               <DetailItem icon={<Building2 size={18} />} label="Department" value={application.department} />
               <DetailItem icon={<Briefcase size={18} />} label="Designation" value={application.designation} />
@@ -154,9 +155,9 @@ export default async function ApplicationDetailPage({ params }: AppPageProps) {
                   <DetailItem icon={<FileText size={18} />} label="Hindi Designation" value={documentUrl(employeeData.hindiDesignationUrl)} />
                 )}
                 <DetailItem icon={<CalendarDays size={18} />} label="Application Date" 
-                  value={employeeData.applicationDate ? format(new Date(employeeData.applicationDate), 'PPP') : '-'} />
+                  value={employeeData.applicationDate ? formatDate(typeof employeeData.applicationDate === 'string' ? employeeData.applicationDate : employeeData.applicationDate.toISOString()) : '-'} />
                 <DetailItem icon={<CalendarDays size={18} />} label="Last Updated" 
-                  value={employeeData.updatedAt ? format(new Date(employeeData.updatedAt), 'PPP') : '-'} />
+                  value={employeeData.updatedAt ? formatDate(typeof employeeData.updatedAt === 'string' ? employeeData.updatedAt : employeeData.updatedAt.toISOString()) : '-'} />
                 {employeeData.remark && (
                   <DetailItem icon={<Edit3 size={18} />} label="Remarks" value={employeeData.remark} />
                 )}
@@ -214,7 +215,7 @@ export default async function ApplicationDetailPage({ params }: AppPageProps) {
                     <CardContent className="space-y-1 text-sm">
                       <div className="flex items-center gap-2">
                         <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                        <span>DOB: {format(new Date(member.dob || ''), 'PPP')}</span>
+                        <span>DOB: {formatDate(member.dob)}</span>
                       </div>
                       {member.bloodGroup && (
                         <div className="flex items-center gap-2">

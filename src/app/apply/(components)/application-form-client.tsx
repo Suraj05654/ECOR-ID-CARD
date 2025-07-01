@@ -24,17 +24,30 @@ import { format, parseISO, isValid } from 'date-fns';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-const getImageDataUrl = (src: string): Promise<string> => {
+const getImageDataUrl = (src: string, type: 'image/png' | 'image/jpeg' = 'image/png', quality = 0.92): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
     img.crossOrigin = 'anonymous';
     img.onload = function () {
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
+      // Resize to max 400x400 for much smaller PDF
+      const maxDim = 400;
+      let width = img.width;
+      let height = img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL('image/png'));
+      ctx?.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL(type, quality));
     };
     img.onerror = reject;
     img.src = src;
@@ -46,10 +59,36 @@ const downloadApplicationAsPdf = (data: ClientApplicationFormData, applicationId
   const photoFile = data.uploadPhoto?.[0];
   const signatureFile = data.uploadSignature?.[0];
 
-  const readerToDataUrl = (file: File): Promise<string> => {
+  const readerToDataUrl = (file: File, type: 'image/png' | 'image/jpeg' = 'image/png', quality = 0.92): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
+      reader.onloadend = () => {
+        // Resize and compress
+        const img = new window.Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          // Resize to max 400x400
+          const maxDim = 400;
+          let width = img.width;
+          let height = img.height;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL(type, quality));
+        };
+        img.onerror = reject;
+        img.src = reader.result as string;
+      };
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
@@ -58,7 +97,7 @@ const downloadApplicationAsPdf = (data: ClientApplicationFormData, applicationId
   const addContentToPdf = async () => {
     // 1. Add ECOR Logo and Title
     try {
-      const logoUrl = await getImageDataUrl('/ecor.png');
+      const logoUrl = await getImageDataUrl('/ecor.png', 'image/png', 0.92);
       // Maintain aspect ratio: set width to 40mm, calculate height
       const img = new window.Image();
       img.src = '/ecor.png';
@@ -88,8 +127,8 @@ const downloadApplicationAsPdf = (data: ClientApplicationFormData, applicationId
     let yImg = 65;
     if (photoFile) {
       try {
-        const photoUrl = await readerToDataUrl(photoFile);
-        doc.addImage(photoUrl, 'JPEG', 15, yImg, 40, 50);
+        const photoUrl = await readerToDataUrl(photoFile, 'image/png', 0.92);
+        doc.addImage(photoUrl, 'PNG', 15, yImg, 40, 50);
         doc.rect(15, yImg, 40, 50);
         doc.text('Photo', 15, yImg + 55);
       } catch (error) {
@@ -98,7 +137,7 @@ const downloadApplicationAsPdf = (data: ClientApplicationFormData, applicationId
     }
     if (signatureFile) {
       try {
-        const signatureUrl = await readerToDataUrl(signatureFile);
+        const signatureUrl = await readerToDataUrl(signatureFile, 'image/png', 0.92);
         doc.addImage(signatureUrl, 'PNG', 65, yImg + 30, 50, 20);
         doc.rect(65, yImg + 30, 50, 20);
         doc.text('Signature', 65, yImg + 53);

@@ -9,16 +9,24 @@ const CARD_HEIGHT = 638; // px (2.125in at 300dpi)
 
 const formatDate = (dateString: string) => {
   if (!dateString) return "N/A";
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "N/A";
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
+  // Handle YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    const [year, month, day] = dateString.split("-");
     return `${day}-${month}-${year}`;
-  } catch {
-    return "N/A";
   }
+  // Handle ISO string
+  const isoMatch = dateString.match(/^\d{4}-\d{2}-\d{2}/);
+  if (isoMatch) {
+    const [year, month, day] = isoMatch[0].split("-");
+    return `${day}-${month}-${year}`;
+  }
+  // Handle DD-MM-YYYY HH:mm:ss.SSS
+  const customMatch = dateString.match(/^(\d{2})-(\d{2})-(\d{4})/);
+  if (customMatch) {
+    const [, day, month, year] = customMatch;
+    return `${day}-${month}-${year}`;
+  }
+  return "N/A";
 };
 
 interface FamilyMember {
@@ -65,23 +73,20 @@ export function RailwayIdCardDynamic(props: RailwayIdCardProps) {
     
     if (isBackSide) {
       // BACK SIDE (QR bottom right, lost card message to the left, allow wrapping)
-      const fam = props.familyMembers && props.familyMembers.length > 0 ? props.familyMembers[0] : null;
-      const familyDetailsText = fam
-        ? [fam.name || "N/A", fam.relation || "N/A", formatDate(fam.dob || ""), fam.bloodGroup || "N/A", props.address || ""].join("&nbsp;&nbsp;&nbsp;&nbsp;")
+      const familyDetailsText = props.familyMembers && props.familyMembers.length > 0
+        ? props.familyMembers.map(fm =>
+            [fm.name || "N/A", fm.relation || "N/A", formatDate(fm.dob || ""), fm.bloodGroup || "N/A"].join("&nbsp;|&nbsp;")
+          ).join("<br style=\"line-height:2; margin-bottom:8px;\"/>")
         : "No family member details available";
       return `
         <div style="position: relative; width: 1012px; height: 638px; background: #fff; font-family: Arial, Helvetica, sans-serif; overflow: hidden; box-sizing: border-box;">
           <div style="position: absolute; top: 20px; left: 48px; right: 48px; text-align: center; font-size: 26px; font-weight: bold; color: #000; letter-spacing: 0.5px;">
             परिवार का विवरण/Details of the family
           </div>
-          <div style="position: absolute; top: 75px; left: 48px; font-size: 19px; font-weight: 400; color: #000; line-height: 1.3; max-width: 700px; white-space: normal; word-break: break-word;">
+          <div style="position: absolute; top: 75px; left: 48px; font-size: 19px; font-weight: 400; color: #000; line-height: 1.7; max-width: 700px; white-space: normal; word-break: break-word; display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px;">
             ${familyDetailsText}
-          </div>
-          <div style="position: absolute; top: 120px; left: 48px; font-size: 19px; font-weight: bold; color: #000;">
-            Emergency Contact No. : ${props.emergencyPhone || "N/A"}
-          </div>
-          <div style="position: absolute; top: 165px; left: 48px; right: 238px; font-size: 17px; font-weight: 400; color: #000; line-height: 1.4; word-wrap: break-word; max-width: 650px;">
-            घर का पता/Res.Address: ${props.address || "N/A"}
+            <div style="margin-top: 12px; font-weight: bold;">Emergency Contact No. : ${props.emergencyPhone || "N/A"}</div>
+            <div style="margin-top: 8px;">घर का पता/Res.Address: ${props.address}</div>
           </div>
           <div style="position: absolute; right: 48px; bottom: 35px; width: 160px; height: 160px; background: #fff; display: flex; align-items: center; justify-content: center;">
             ${props.qrUrl ? `<img src=\"${props.qrUrl}\" alt=\"QR Code\" style=\"width: 160px; height: 160px; object-fit: contain; background: #fff;\" />` : ''}
@@ -294,7 +299,7 @@ export function RailwayIdCardDynamic(props: RailwayIdCardProps) {
             परिवार का विवरण/Details of the family
           </div>
 
-          {/* Family Details (flex row with gap 32px) */}
+          {/* Family Details (column for each member) */}
           <div style={{
             position: "absolute",
             top: 75,
@@ -302,48 +307,33 @@ export function RailwayIdCardDynamic(props: RailwayIdCardProps) {
             fontSize: 19,
             fontWeight: 400,
             color: "#000",
-            lineHeight: 1.3,
+            lineHeight: 1.7,
             maxWidth: 700,
             whiteSpace: 'normal',
             wordBreak: 'break-word',
             display: 'flex',
-            gap: '32px'
+            flexDirection: 'column',
+            gap: '12px',
+            marginBottom: '12px'
           }}>
-            {fam ? [
-              <span key="name">{fam.name || "N/A"}</span>,
-              <span key="relation">{fam.relation || "N/A"}</span>,
-              <span key="dob">{formatDate(fam.dob || "")}</span>,
-              <span key="blood">{fam.bloodGroup || "N/A"}</span>,
-              <span key="addr">{props.address || ""}</span>
-            ] : "No family member details available"}
-          </div>
-
-          {/* Emergency Contact */}
-          <div style={{
-            position: "absolute",
-            top: 120,
-            left: 48,
-            fontSize: 19,
-            fontWeight: "bold",
-            color: "#000"
-          }}>
-            Emergency Contact No. : {props.emergencyPhone || "N/A"}
-          </div>
-
-          {/* Residential Address */}
-          <div style={{
-            position: "absolute",
-            top: 165,
-            left: 48,
-            right: 238,
-            fontSize: 17,
-            fontWeight: 400,
-            color: "#000",
-            lineHeight: 1.4,
-            wordWrap: "break-word",
-            maxWidth: 650
-          }}>
-            घर का पता/Res.Address: {props.address || "N/A"}
+            {props.familyMembers && props.familyMembers.length > 0 ? (
+              <>
+                {props.familyMembers.map((fm, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: '24px', marginBottom: '4px' }}>
+                    <span>{fm.name || "N/A"}</span>
+                    <span>{fm.relation || "N/A"}</span>
+                    <span>{formatDate(fm.dob || "")}</span>
+                    <span>{fm.bloodGroup || "N/A"}</span>
+                  </div>
+                ))}
+                <div style={{ marginTop: '12px', fontWeight: 'bold' }}>
+                  Emergency Contact No. : {props.emergencyPhone || "N/A"}
+                </div>
+                <div style={{ marginTop: '8px' }}>
+                  घर का पता/Res.Address: {props.address}
+                </div>
+              </>
+            ) : "No family member details available"}
           </div>
 
           {/* QR Code */}

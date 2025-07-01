@@ -64,6 +64,19 @@ const mapBackendEmployee = (emp: any): StoredEmployee => ({
   empId: emp.empId || emp.employeeNo || ''
 });
 
+// Utility to extract only the date part (yyyy-mm-dd) from a string or Date
+function extractDatePart(dateVal: string | Date | undefined): string | null {
+  if (!dateVal) return null;
+  if (typeof dateVal === 'string') {
+    const match = dateVal.match(/\d{4}-\d{2}-\d{2}/);
+    return match ? match[0] : null;
+  }
+  if (dateVal instanceof Date) {
+    return dateVal.toISOString().split('T')[0];
+  }
+  return null;
+}
+
 export async function getAllApplications(): Promise<StoredEmployee[]> {
   console.log('[GET_ALL_APPLICATIONS] Fetching all applications for admin dashboard.');
   try {
@@ -164,23 +177,12 @@ export async function getApplicationStatus(applicationId: string, dateOfBirth: s
       };
     }
 
-    // Convert the stored date to string format for comparison
-    let storedDate: Date;
-    if (appData.dateOfBirth instanceof Date) {
-      storedDate = appData.dateOfBirth;
-    } else if (appData.dob instanceof Date) {
-      storedDate = appData.dob;
-    } else if (typeof appData.dateOfBirth === 'string') {
-      storedDate = parseISO(appData.dateOfBirth);
-    } else if (typeof appData.dob === 'string') {
-      storedDate = parseISO(appData.dob);
-    } else {
-      storedDate = parseISO(dateOfBirth);
-    }
+    // Always compare only the date part for DOB
+    const storedDob = extractDatePart(appData.dateOfBirth || appData.dob);
+    const providedDob = extractDatePart(dateOfBirth);
 
-    const storedDob = format(storedDate, 'yyyy-MM-dd');
-    console.log('[GET_APPLICATION_STATUS] Comparing DOB:', { stored: storedDob, provided: dateOfBirth });
-    const dobMatch = storedDob === dateOfBirth;
+    console.log('[GET_APPLICATION_STATUS] Comparing DOB:', { stored: storedDob, provided: providedDob });
+    const dobMatch = storedDob === providedDob;
 
     if (!dobMatch) {
       console.log('[GET_APPLICATION_STATUS] DOB mismatch');
@@ -196,7 +198,7 @@ export async function getApplicationStatus(applicationId: string, dateOfBirth: s
       status: appData.status?.toLowerCase(),
       applicantName: appData.employeeName,
       submissionDate: appData.applicationDate ? 
-        format(appData.applicationDate instanceof Date ? appData.applicationDate : new Date(appData.applicationDate), 'dd MMM yyyy, p') : null,
+        extractDatePart(appData.applicationDate) : null,
       remark: appData.remark || '',
       photoUrl: appData.photoUrl || (appData.photoFileId ? `/api/file/${appData.photoFileId}` : ''),
       signatureUrl: appData.signatureUrl || (appData.signatureFileId ? `/api/file/${appData.signatureFileId}` : '')

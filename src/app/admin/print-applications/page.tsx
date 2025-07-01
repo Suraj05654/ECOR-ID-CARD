@@ -22,6 +22,7 @@ interface Application {
   signatureUrl: string;
   mobileNumber: string;
   familyMembers: { name: string; relationship: string; dob: string; bloodGroup: string }[];
+  residentialAddress: string;
 }
 
 export default function PrintApplicationsPage() {
@@ -54,6 +55,7 @@ export default function PrintApplicationsPage() {
           photoUrl: e.photoUrl || (e.photoFileId ? `/api/file/${e.photoFileId}` : ''),
           signatureUrl: e.signatureUrl || (e.signatureFileId ? `/api/file/${e.signatureFileId}` : ''),
           mobileNumber: e.mobileNumber || '',
+          residentialAddress: e.residentialAddress || '',
           familyMembers: Array.isArray(e.familyMembersJson ? JSON.parse(e.familyMembersJson) : []) 
             ? (e.familyMembersJson ? JSON.parse(e.familyMembersJson) : []).map((fm: any) => ({
                 name: fm.name || '',
@@ -144,7 +146,7 @@ export default function PrintApplicationsPage() {
                 dateOfBirth={selected.dob}
                 bloodGroup={selected.familyMembers[0]?.bloodGroup || 'N/A'}
                 contactNumber={selected.mobileNumber || 'N/A'}
-                address={selected.station}
+                address={selected.residentialAddress}
                 emergencyContact={selected.familyMembers.find(f => f.relationship?.toLowerCase() !== 'self')?.name || selected.empName}
                 emergencyPhone={selected.mobileNumber || ''}
                 medicalInfo={`Blood Group: ${selected.familyMembers[0]?.bloodGroup || 'N/A'}`}

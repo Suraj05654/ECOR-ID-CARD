@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { Printer } from "lucide-react";
 import { useState } from "react";
 import { PrintPreview } from "./print-preview";
+import { formatDate } from "@/lib/utils";
 
 interface FamilyMember {
   name: string;
@@ -67,7 +68,7 @@ export function ApplicationCard({
             <div className="space-y-2">
               <div><span className="font-medium">EMPNO:</span> {employeeNumber}</div>
               <div><span className="font-medium">EMPNAME:</span> {name}</div>
-              <div><span className="font-medium">DOB:</span> {format(new Date(dob), 'PPP')}</div>
+              <div><span className="font-medium">DOB:</span> {formatDate((dob as any) instanceof Date ? (dob as any).toISOString() : dob)}</div>
               <div><span className="font-medium">ADDRESS:</span> {address}</div>
             </div>
             
@@ -78,7 +79,7 @@ export function ApplicationCard({
             </div>
             
             <div className="space-y-2">
-              <div><span className="font-medium">APPLICATION DATE:</span> {format(new Date(applicationDate), 'PPP')}</div>
+              <div><span className="font-medium">APPLICATION DATE:</span> {formatDate((applicationDate as any) instanceof Date ? (applicationDate as any).toISOString() : applicationDate)}</div>
             </div>
           </div>
           
@@ -130,7 +131,7 @@ export function ApplicationCard({
                     <tr key={index}>
                       <td className="border px-4 py-2">{member.name}</td>
                       <td className="border px-4 py-2">{member.relation}</td>
-                      <td className="border px-4 py-2">{format(new Date(member.dob), 'PPP')}</td>
+                      <td className="border px-4 py-2">{formatDate((member.dob as any) instanceof Date ? (member.dob as any).toISOString() : member.dob)}</td>
                       <td className="border px-4 py-2">{member.bloodGroup}</td>
                     </tr>
                   ))}
@@ -161,7 +162,7 @@ export function ApplicationCard({
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-700">Date of Birth</h3>
-                  <p>{format(new Date(dob), 'PPP')}</p>
+                  <p>{formatDate((dob as any) instanceof Date ? (dob as any).toISOString() : dob)}</p>
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-700">Department</h3>
@@ -173,7 +174,7 @@ export function ApplicationCard({
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-700">Application Date</h3>
-                  <p>{format(new Date(applicationDate), 'PPP')}</p>
+                  <p>{formatDate((applicationDate as any) instanceof Date ? (applicationDate as any).toISOString() : applicationDate)}</p>
                 </div>
               </div>
               
@@ -206,7 +207,7 @@ export function ApplicationCard({
                             <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{member.name}</td>
                             <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{member.relation}</td>
                             <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                              {format(new Date(member.dob), 'PPP')}
+                              {formatDate((member.dob as any) instanceof Date ? (member.dob as any).toISOString() : member.dob)}
                             </td>
                             <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{member.bloodGroup}</td>
                           </tr>
