@@ -209,7 +209,7 @@ export function RailwayIdCardDynamic(props: RailwayIdCardProps) {
 
       // Capture front side
       const frontCanvas = await html2canvas(frontCard, {
-        scale: 2,
+        scale: 1,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
@@ -226,7 +226,7 @@ export function RailwayIdCardDynamic(props: RailwayIdCardProps) {
 
       // Capture back side
       const backCanvas = await html2canvas(backCard, {
-        scale: 2,
+        scale: 1,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
@@ -246,11 +246,11 @@ export function RailwayIdCardDynamic(props: RailwayIdCardProps) {
       });
 
       // Add front side
-      pdf.addImage(frontCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', 0, 0, 3.375, 2.125);
+      pdf.addImage(frontCanvas.toDataURL('image/jpeg', 0.6), 'JPEG', 0, 0, 3.375, 2.125);
 
       // Add back side on new page
       pdf.addPage([3.375, 2.125], 'landscape');
-      pdf.addImage(backCanvas.toDataURL('image/jpeg', 1.0), 'JPEG', 0, 0, 3.375, 2.125);
+      pdf.addImage(backCanvas.toDataURL('image/jpeg', 0.6), 'JPEG', 0, 0, 3.375, 2.125);
 
       // Save PDF
       pdf.save(`railway-id-card-${props.name?.replace(/\s+/g, '-') || 'unknown'}.pdf`);

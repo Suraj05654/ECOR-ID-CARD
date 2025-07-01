@@ -58,7 +58,11 @@ export async function GET(req: NextRequest) {
         photoUrl: e.photoUrl || getFileUrl(e.photoFileId),
         signatureUrl: e.signatureUrl || getFileUrl(e.signatureFileId),
         hindiNameUrl: e.hindiNameUrl || getFileUrl(e.hindiNameFileId),
-        hindiDesignationUrl: e.hindiDesignationUrl || getFileUrl(e.hindiDesignationFileId)
+        hindiDesignationUrl: e.hindiDesignationUrl || getFileUrl(e.hindiDesignationFileId),
+        residentialAddress: e.residentialAddress || '',
+        address: e.address || '',
+        presentAddress: e.presentAddress || '',
+        permanentAddress: e.permanentAddress || ''
       };
     });
 

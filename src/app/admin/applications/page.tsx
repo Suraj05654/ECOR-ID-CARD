@@ -130,7 +130,13 @@ const transformEmployeeData = (employee: any): ApplicationApi => {
     status: (employee.status || 'pending').toLowerCase() as ApplicationApi['status'],
     remark: employee.remark,
     familyMembers: employee.familyMembersJson ? JSON.parse(employee.familyMembersJson) : [],
-    residentialAddress: employee.residentialAddress,
+    residentialAddress:
+      employee.residentialAddress ||
+      employee.residential_address ||
+      employee.ResidentialAddress ||
+      employee.RESIDENTIALADDRESS ||
+      employee['residential address'] ||
+      "",
     address: employee.address,
     presentAddress: employee.presentAddress,
     permanentAddress: employee.permanentAddress
@@ -181,6 +187,7 @@ export default function ApplicationsPage() {
       }
       
       const { employees } = await response.json();
+      console.log("RAW EMPLOYEE DATA:", employees[0]);
       const transformedApplications = employees.map(transformEmployeeData);
       
       setApplications(transformedApplications);
@@ -312,12 +319,7 @@ export default function ApplicationsPage() {
       member => member.relationship?.toLowerCase() !== 'self'
     );
 
-    const cardAddress =
-      (preview.address && preview.address.trim() && preview.address.trim() !== 'N/A' && preview.address) ||
-      (preview.residentialAddress && preview.residentialAddress.trim() && preview.residentialAddress.trim() !== 'N/A' && preview.residentialAddress) ||
-      (preview.presentAddress && preview.presentAddress.trim() && preview.presentAddress.trim() !== 'N/A' && preview.presentAddress) ||
-      (preview.permanentAddress && preview.permanentAddress.trim() && preview.permanentAddress.trim() !== 'N/A' && preview.permanentAddress) ||
-      "N/A";
+    const cardAddress = preview.residentialAddress || preview.address || preview.presentAddress || preview.permanentAddress || "N/A";
 
     return (
       <RailwayIdCardDynamic
